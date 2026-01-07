@@ -40,7 +40,7 @@
 Unity Machine Learning Agents (ML-Agents) is an open-source Unity plugin that enables games and simulations to serve as environments for training intelligent agents.
 For game developers, these trained agents can be used for multiple purposes, including controlling NPC behaviour (in a variety of settings such as multi-agent and adversarial), automated testing of game builds and evaluating different game design decisions pre-release.
 
-<a id = 'unity_environment'></a>
+<a id = 'tennis_environment'></a>
 ## 1.2. Tennis environment
 
 This project aims to solve the Unity environment called **"Tennis"** provided by Udacity. It can be downloaded from one of the links below:
@@ -292,7 +292,7 @@ Best-trial plot (only when `--search` is enabled):
 
 For simplicity, only the first and last episode checkpoints are kept in the repository.
 
-<a id = hypothesis_tests'></a>
+<a id = hypothesis_tests></a>
 ## 4.8 Hypothesis tests
 
 The script uses a bootstrap 95% confidence interval to answer:
