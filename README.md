@@ -350,7 +350,7 @@ python extract_weights_n_load_into_policy.py --run-dir "path/to/results/collab_c
 ```
 
 <a id = 'repo_structure'></a>
-## 6. Repository structure (key items)
+# 6. Repository structure (key items)
 
 - `shared_actor_maddpg_with_team_reward.py`
 - `extract_weights_n_load_into_policy.py`
