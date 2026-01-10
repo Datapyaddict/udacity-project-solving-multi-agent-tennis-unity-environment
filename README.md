@@ -102,7 +102,7 @@ The solution uses a **MADDPG (Multi Agent Deep Deterministic Policy Gradient)** 
 - a shaped team reward based on the environment rewards.
 - plus **target** networks (actor and central critic).
 
-See [`report.pdf`](#report.pdf) for the methodology and results.
+See [`report.pdf`](#https://github.com/Datapyaddict/udacity-project-solving-multi-agent-tennis-unity-environment/blob/main/report.pdf) for the methodology and results.
 
 Two scripts are used:
 
