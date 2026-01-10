@@ -102,7 +102,7 @@ The solution uses a **MADDPG (Multi Agent Deep Deterministic Policy Gradient)** 
 - a shaped team reward based on the environment rewards.
 - plus **target** networks (actor and central critic).
 
-See [`report.pdf`](#https://github.com/Datapyaddict/udacity-project-solving-multi-agent-tennis-unity-environment/blob/main/report.pdf) for the methodology and results.
+See [report.pdf](https://github.com/Datapyaddict/udacity-project-solving-multi-agent-tennis-unity-environment/blob/main/report.pdf) for the methodology and results.
 
 Two scripts are used:
 
@@ -131,7 +131,7 @@ In the repository, 2 runs are referenced:
 - Hyperparameter search: `run_HP_SEARCH`
 - Training across seeds: `run_TRAINING_PER_SEED`
 
-The following features are elaborated in `report.pdf`:
+The following features are elaborated in [report.pdf](https://github.com/Datapyaddict/udacity-project-solving-multi-agent-tennis-unity-environment/blob/main/report.pdf):
 
 - Shared Actor (`FCDP`) and Central Critic training per trial/seed.
 - Gaussian noise exploration for action selection.
