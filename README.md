@@ -10,16 +10,15 @@
 
 [2. Required Python libraries](#libraries)  
 [3. Solution implemented](#solution)  
-[4. Script: `shared_ddpg.py`](#shared_ddpg)  
-- [4.1 Overview](#shared_ddpg_overview)  
-- [4.2 CLI arguments](#shared_ddpg_arguments)  
-- [4.3 Logging](#shared_ddpg_logging)  
+[4. Script: `shared_actor_maddpg_with_team_reward.py`](#shared_actor_maddpg_with_team_reward)  
+- [4.1 Overview](#shared_actor_maddpg_with_team_reward_overview)  
+- [4.2 CLI arguments](#shared_actor_maddpg_with_team_reward_arguments)  
+- [4.3 Logging](#shared_actor_maddpg_with_team_reward_logging)  
 - [4.4 Plots](#plots)  
 - [4.5 CSV summaries](#csv_summaries) 
 - [4.6 JSON files](#json_files) 
 - [4.7 Model checkpoints](#model_checkpoints) 
-- [4.8 Hypothesis tests](#hypothesis_tests)
-- [4.9 2-step runs (commands)](#shared_ddpg_runs)
+- [4.8 2-step runs (commands)](#shared_actor_maddpg_with_team_reward_runs)
 
 [5. Script: `extract_weights_n_load_into_policy.py`](#extract_weights_n_load_into_policy)  
 > [5.1 Overview](#extract_weights_n_load_into_policy_overview)   
@@ -27,7 +26,7 @@
 > [5.3 runs](#extract_weights_n_load_into_policy_run)  
 
 [6. Repository structure (key items)](#repo_structure)  
-[7. Results of experiment](#results)  
+
 
 ***
 
@@ -55,7 +54,7 @@ Note: this repository already includes a Windows build at `./Tennis_Windows_x86_
 <a id = 'solving_environment'></a>
 ## 1.3 Solving the "Tennis" environment
 
-In the environment "Tennis", two agents control rackets to bounce a ball over a net.
+In the "Tennis" environment, two agents control rackets to bounce a ball over a net.
 If an agent hits the ball over the net, it receives a reward of `+0.1`. If an agent lets a ball hit the ground or hits the ball out of bounds, it receives a reward of `-0.01`. Thus, the goal of each agent is to keep the ball in play.
 
 The observation space consists of 24 variables (and not 8 as mentioned by Udacity) corresponding to the position and velocity of the ball and racket . 
@@ -63,13 +62,13 @@ The observation space consists of 24 variables (and not 8 as mentioned by Udacit
 Each agent receives its own, local observation. Two continuous actions are available, corresponding to movement toward (or away from) the net, and jumping.
 
 
-The task is episodic, and in order to solve the environment, the agents must get an average score of `+0.5`(over `100` consecutive episodes, after taking the maximum over both agents). Specifically,
+The task is episodic. In order to solve the environment, the agents must get an average score of `+0.5`(over `100` consecutive episodes, after taking the maximum over both agents). Specifically,
 - After each episode, we add up the rewards that each agent received (without discounting), to get a score for each agent. This yields 2 (potentially different) scores. We then take the `maximum of these 2 scores`.
 - This yields a single score for each episode.
 
 The environment is considered solved, when the average (over 100 episodes) of those scores is at least `+0.5`.
 
-<img src="pictures/tennis_game.png" width="500"/>
+<img src="pictures/tennis_game.gif" width="500"/>
 
 As an indication, in the solution implemented by Udacity, the average score over 100 episodes has reached the threshold of `0.5` around episode `1500`.
 At one point, it was accomplished an average score (over 100 episodes) of +0.9148!
@@ -97,25 +96,26 @@ Do **not** use the "Tennis" version provided by Unity on the [Unity ML-Agents Gi
 <a id = 'solution'></a>
 # 3. Solution implemented
 
-The solution uses a **DDPG (Deep Deterministic Policy Gradient)** agent, which relies on:
+The solution uses a **MADDPG (Multi Agent Deep Deterministic Policy Gradient)** agent, which relies on:
 
-- an **Actor** (policy) network and a **Critic** (Q-value) network
-- plus a **target** copy of each network
+- an online **shared Actor** (policy) network and an online **Central Critic** (producing 2 Q-values) network.
+- a shaped team reward based on the environment rewards.
+- plus **target** networks (actor and central critic).
 
-See `report.pdf` for algorithm details.
+See `report.pdf` for the methodology and results.
 
 Two scripts are used:
 
-- `shared_ddpg.py`
+- `shared_actor_maddpg_with_team_reward.py`
 - `extract_weights_n_load_into_policy.py`
 
-<a id = 'shared_ddpg'></a>
-# 4. Script: `shared_ddpg.py`
+<a id = 'shared_actor_maddpg_with_team_reward'></a>
+# 4. Script: `shared_actor_maddpg_with_team_reward.py`
 
-<a id = 'shared_ddpg_overview'></a>
+<a id = 'shared_actor_maddpg_with_team_reward_overview'></a>
 ## 4.1 Overview
 
-This script is an end-to-end training runner for a DDPG agent on the Unity Tennis environment, handling a batch of 2 competing agents.
+This script is an end-to-end training runner for a MADDPG agent on the Unity Tennis environment, handling a batch of 2 competing agents.
 
 It can run:
 
@@ -126,14 +126,14 @@ and it saves checkpoints, logs, plots, and CSV/JSON summaries under a timestampe
 
 `results/collab_compet/run_YYYYMMDD_HHMMSS/`
 
-Repository runs referenced:
+In the repository, 2 runs are referenced:
 
-- Hyperparameter search: `run_20251228_145548_HP_SEARCH`
-- Training across seeds: `run_20251228_195414_TRAINING_PER_SEED`
+- Hyperparameter search: `run_HP_SEARCH`
+- Training across seeds: `run_TRAINING_PER_SEED`
 
 The following features are elaborated in `report.pdf`:
 
-- Actor (`FCDP`) and critic (`FCQV`) training per trial/seed.
+- Shared Actor (`FCDP`) and Central Critic training per trial/seed.
 - Gaussian noise exploration for action selection.
 - Replay buffer storing online transitions.
 - Training with based-exploration strategy to build the replay buffer.
@@ -159,7 +159,7 @@ Built-in defaults:
 - `goal_mean_100_reward=0.5`
 - `final_eval_episodes=100`
 
-<a id = 'shared_ddpg_arguments'></a>
+<a id = 'shared_actor_maddpg_with_team_reward_arguments'></a>
 ## 4.2 CLI arguments
 
 - `--search`: enables hyperparameter search over the search grid. If not provided, the script runs a single default configuration.
@@ -182,7 +182,7 @@ Search grid:
 - `--cpu`: forces PyTorch CPU.
 - `--max-grad-norm <float>` (default: 0.0): enables gradient clipping only if `> 0`.
 
-<a id = 'shared_ddpg_logging'></a>
+<a id = 'shared_actor_maddpg_with_team_reward_logging'></a>
 ## 4.3 Logging (`run.log`)
 
 Path:
@@ -292,40 +292,17 @@ Best-trial plot (only when `--search` is enabled):
 
 For simplicity, only the first and last episode checkpoints are kept in the repository.
 
-<a id = hypothesis_tests></a>
-## 4.8 Hypothesis tests
-
-The script uses a bootstrap 95% confidence interval to answer:
-
-> Given the final evaluation scores from multiple random seeds, is the mean performance very likely to be above the goal threshold (+0.5)?
-
-The mean and the std are calculated over the list of final evaluation scores (10 in our experiment).
-
-Each bootstrap iteration creates a new list of 10 scores by randomly drawing from the original 10 scores allowing repeats. Then a mean is created for each resampled set. The script repeats that resampling 5000 times, ending up with a list of 5000 bootstrap means.
-
-Then, the script takes quantiles:
-- low = 2.5th percentile of bootstrap means.
-- high = 97.5th percentile of bootstrap means.
-
-That becomes the bootstrap 95% confidence interval for the mean final score.
-
-The interpretation can be derived as follows:
-- If the lower bound of the 95% CI is above the goal score of +0.5, then the script claims: “Significant (mean > goal @95%)? Yes”
-- Otherwise: No (insufficient evidence that the mean is above the goal at 95% confidence)
-
-For meaningful inference, the bootstrap CI is only relevant when using multiple seeds .
-
-<a id = 'shared_ddpg_runs'></a>
-## 4.9 2-step runs (commands)
+<a id = 'shared_actor_maddpg_with_team_reward_runs'></a>
+## 4.8 2-step runs (commands)
 
 Our approach to solving the environment is to run the script with a --search mode and a single seed common across 10 trials in order to identify the best hyper-parameters. 
 ```bash
-python shared_ddpg.py --cpu --search --max-trials 10 --seeds 29
+python shared_actor_maddpg_with_team_reward.py --cpu --search --max-trials 10 --seeds 29
 ```
 
 Then, we run the script with the best hyperparameters as default hyper parameters across 10 seeds:
 ```bash
-python shared_ddpg.py --cpu --seeds 33,41,66,39,8,77,21,20,44,22
+python shared_actor_maddpg_with_team_reward.py --cpu --seeds 33,41,66,39,8,77,21,20,44,22
 ```
 <a id = 'extract_weights_n_load_into_policy'></a>
 # 5. Script: `extract_weights_n_load_into_policy.py`
@@ -375,60 +352,13 @@ python extract_weights_n_load_into_policy.py --run-dir "path/to/results/collab_c
 <a id = 'repo_structure'></a>
 ## 6. Repository structure (key items)
 
-- `shared_ddpg.py`
+- `shared_actor_maddpg_with_team_reward.py`
 - `extract_weights_n_load_into_policy.py`
-- `p3_performance_results.xlsx`
 - `report.pdf`
 - `./Tennis_Windows_x86_64/` (includes `Tennis.exe`)
 - `./results/collab_compet/run_.../` (logs, plots, summaries, trials)
+- `./best_model_and_weights_and_plot/` (best model, weights, plot)
+- `./pictures/`
 
-<a id = 'results'></a>
-## 7. Results of the experiment
 
-Hyperparameter search found that trial 3 outperformed other trials with:
 
-- 1526 episodes required to exceed the goal score, with a 100-episode MA of evaluation score `0.5086` at stop during training
-- 100-episode MA of the final evaluation performance (post training) of `2.31±0.85`
-
-Hyperparameters (trial 3):
-
-- hidden dimensions: `(256,256)`
-- optimizer: Adam
-- learning rate: `0.0005`
-- buffer size: `100000`
-- batch size: `500`
-- exploration noise ratio: `0.1`
-- n warm-up batches: `5`
-- target update frequency (time steps): `5`
-
-<img src="pictures/results_1.png" width="500"/>
-
-Training across 10 seeds with the best hyperparameters found seed 22 performed best by episodes to solve:
-
-- **1127** episodes required to exceed the goal score, with a 100-episode MA of evaluation score `0.5034` at stop
-- 100-episode MA of the final evaluation performance (post training) of `1.27±0.88`
-
-It can be concluded that the current experiment surpasses Udacity’s reference (1127 < 1500 episodes).
-
-Based on the 100-episode MA of the final evaluation performance (post training) alone, it is also observed that seed 41 produces the best score (1.74±0.98), although the number of required episodes is larger (2567).
-
-<img src="pictures/results_2.png" width="500"/>
-
-The weights of the online policy model for both seeds are then produced using the script extract_weights_n_load_into_policy.py:
-- ./results/collab_compet/run_20251228_195414_TRAINING_PER_SEED/trials/default/
-    - seed_41/
-        - checkpoints/online_policy_model.2566.weights.npz
-        - online_policy_model.2566.weights.pt
-    - Seed 22/
-        - online_policy_model.1126.weights.npz
-        - online_policy_model.1126.weights.pt
-
-The corresponding plots for both seeds are presented below:
-<img src="pictures/plots.png" width="500"/>
-
-Regarding the statistical test with  bootstrap 95% CI across all seeds , it was found that the bootstrap mean is significantly above the goal score of +0.5 at 95%, as shown below:
-- list of 10 final seed-based eval scores: [0.881, 1.744, 1.083, 1.323, 0.0, 1.474, 0.889, 1.014, 1.282, 1.275] , 
-- bootstrap statistics : Mean=1.097, Std=0.469, 
-- bootstrap 95% CI for mean : [0.794, 1.345]
-
-This means that the models created with the best hyper-parameters found, were able to significantly outperform the threshold score of +0.5.

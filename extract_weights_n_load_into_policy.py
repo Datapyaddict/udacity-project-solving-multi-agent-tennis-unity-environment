@@ -6,8 +6,8 @@ from typing import Optional, Dict, Tuple, Any
 import numpy as np
 import torch
 
-# Policy class from your Tennis DDPG script
-from shared_ddpg import FCDP
+# Policy class from your Tennis MADDPG script
+from shared_actor_maddpg_with_team_reward import FCDP
 
 
 def find_checkpoint_dir(run_dir: str, trial_id: str = "default", seed: int = 12) -> str:

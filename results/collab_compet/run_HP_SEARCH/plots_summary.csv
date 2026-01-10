@@ -1,0 +1,11 @@
+trial_id,seed,cause,episode,mean_100_eval_at_stop,plot_path
+trial_001,29,goal,2288,0.508800,results\collab_compet\run_20260108_095932\plots\evaluation_mean100_trial_001_seed_29.png
+trial_002,29,episodes,3000,,results\collab_compet\run_20260108_095932\plots\evaluation_mean100_trial_002_seed_29.png
+trial_003,29,goal,1765,0.510100,results\collab_compet\run_20260108_095932\plots\evaluation_mean100_trial_003_seed_29.png
+trial_004,29,episodes,3000,,results\collab_compet\run_20260108_095932\plots\evaluation_mean100_trial_004_seed_29.png
+trial_005,29,episodes,3000,,results\collab_compet\run_20260108_095932\plots\evaluation_mean100_trial_005_seed_29.png
+trial_006,29,episodes,3000,,results\collab_compet\run_20260108_095932\plots\evaluation_mean100_trial_006_seed_29.png
+trial_007,29,goal,2823,0.515100,results\collab_compet\run_20260108_095932\plots\evaluation_mean100_trial_007_seed_29.png
+trial_008,29,goal,2944,0.517900,results\collab_compet\run_20260108_095932\plots\evaluation_mean100_trial_008_seed_29.png
+trial_009,29,episodes,3000,,results\collab_compet\run_20260108_095932\plots\evaluation_mean100_trial_009_seed_29.png
+trial_010,29,episodes,3000,,results\collab_compet\run_20260108_095932\plots\evaluation_mean100_trial_010_seed_29.png
