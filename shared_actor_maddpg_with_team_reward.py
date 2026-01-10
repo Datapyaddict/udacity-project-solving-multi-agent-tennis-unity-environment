@@ -142,7 +142,7 @@ def _default_env_settings() -> Dict[str, Any]:
 
 def _build_search_space() -> List[Dict[str, Any]]:
     """
-    Build a grid of hyperparameter configurations for DDPG search.
+    Build a grid of hyperparameter configurations for MADDPG search.
     """
     grid = {
         'hidden_dims': [(64, 64), (128,128), (256,256)],
@@ -555,6 +555,7 @@ class CentralCritic2(nn.Module):
 class FCDP(nn.Module):
     """
     Deterministic actor (policy) network for DDPG: maps states to continuous actions a = π(s).
+    Used for  the shared actor in MADDPG.
     """
     def __init__(self, input_dim: int, action_bounds: Tuple[np.ndarray, np.ndarray], 
                  hidden_dims: Tuple[int,int] = (256,256), 
@@ -663,6 +664,7 @@ class NormalNoiseStrategy:
 class DDPG:
     """
     Deep Deterministic Policy Gradient (DDPG) agent.
+    Used as the base for MADDPG.
 
     Updated behavior:
     - Early stopping summary is recorded in self.early_stop_info:
@@ -760,7 +762,7 @@ class DDPG:
               final_eval_episodes: int,
               base_worker_id: int):
         """
-        Train the DDPG agent on Unity Tennis (2 agents).
+        Train the MADDPG agent on Unity Tennis (2 agents).
 
         Returns
         - result: np.ndarray (max_episodes, 4) with columns:
@@ -1018,7 +1020,7 @@ def run_single_training(run_dir: str,
                         trial_id: Optional[str] = None,
                         trial_index: int = 1) -> Tuple[List[np.ndarray], List[float], float, List[Dict[str, Any]]]:
     """
-    Train the DDPG agent across multiple seeds for a single hyperparameter configuration.
+    Train the MADDPG agent across multiple seeds for a single hyperparameter configuration.
 
     Changes:
     - Remove aggregated plot across seeds; keep only per-seed plots.
@@ -1192,7 +1194,7 @@ def run_single_training(run_dir: str,
 
 def main():
     """
-    Entry point to orchestrate training/evaluation of a DDPG agent on Unity Tennis.
+    Entry point to orchestrate training/evaluation of a MADDPG agent on Unity Tennis.
 
     Updated behavior
     - Writes one line per episode to console and run.log.
